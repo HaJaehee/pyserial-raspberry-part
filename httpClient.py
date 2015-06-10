@@ -9,33 +9,47 @@ import numpy
 ser = serial.Serial('/dev/ttyACM0', 9600)
 pattern = re.compile("^\s+|\s*,\s*|\s+$")
 
-resetCount = 15*1
-wattHourList = []
+resetCount = 2
+loopCount = 1
+watt = 0
 
 while 1 :
     serialValue = ser.readline() 
     print serialValue    
-    splitValues = pattern.split(serialValue) 
+    splitValues = pattern.split(serialValue)
+    watt += float(splitValues[0])
 
-    if(len(wattHourList) == resetCount-1) :
-        wattHourList.append(splitValues[0])
-        url = '202.30.29.239:8888/update.php'
-        values = {'watt' : numpy.mean(wattHourList),
-            'power' : serialValues[1]}
-
-        data = urllib.urlencode(values)
-        req = urllib2.Request(url, data)
-        response = urllib2.urlopen(req)
-        the_page = response.read()
+    if(loopCount == resetCount) :
+        watt /= loopCount
         
-        print response.status, response.reason
+        param = {'watt' : watt, 'power' : splitValues[1]}
+        port = 80
+        url = 'http://202.30.29.239:%s/update.php?%s' % (port, urllib.urlencode(param))
 
-        conn.close()
+        #1st
+        response = urllib2.urlopen(url)
+        html = response.read()
 
+        print html
+
+        #2nd
+#       response2, content = httplib2.http().request(url)
+        
+#       print response2.status
+#       print content
+
+        #3rd
+#        conn = httplib.HTTPConnection(url)
+#        conn.request("GET")
+#        response3 = conn.getresponse()
+#        data = response.read()
+#        conn.close
+
+        watt = 0
+        loopCount = 1
 
     else :
-        wattHourList.append(splitValues[0])
-
+        loopCount+=1
 
 
 

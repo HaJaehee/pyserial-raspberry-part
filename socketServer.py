@@ -28,14 +28,15 @@ print 'Socket now listening'
 while 1:
     #wait to accept a connection - blocking call
     conn, addr = s.accept()
-    #print 'Connected with ' + addr[0] + ':' + str(addr[1])
+    print 'Connected with ' + addr[0] + ':' + str(addr[1])
         
     while 1:
         data = conn.recv(1024)
         
         if data:
-            print data.split('power=')[1]
-            ser.write(data.split('power=')[1])      # write a string    
+            pw = data.split('power=')[1]
+            print pw
+            ser.write(pw)      # write a string    
             reply = 'OK... ' + data
             conn.sendall(reply)
              
